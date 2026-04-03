@@ -15,7 +15,7 @@ app.post("/enriquecer", async (req, res) => {
     }
 
   const prompt = `
-Retorne APENAS este JSON, sem nenhum texto extra:
+Retorne EXATAMENTE este JSON, sem nenhum texto antes ou depois:
 
 {
   "marca": "Vinho Teste",
@@ -23,8 +23,8 @@ Retorne APENAS este JSON, sem nenhum texto extra:
   "origem": "Chile",
   "grupo": "Tinto",
   "uva": "Cabernet Sauvignon",
-  "descricao": "Vinho encorpado com notas de frutas",
-  "harmonizacao": ["Carnes", "Massas"]
+  "descricao": "Teste funcionando",
+  "harmonizacao": ["Carne", "Queijo"]
 }
 `;
 
