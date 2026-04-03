@@ -7,58 +7,41 @@ app.use(express.json());
 app.post("/enriquecer", async (req, res) => {
   try {
     const { ean } = req.body;
-    console.log("🍷 EAN Recebido:", ean);
+    console.log("🍷 EAN:", ean);
 
     if (!ean) return res.status(400).json({ erro: "EAN obrigatorio" });
 
-    // Prompt super direto e sem caracteres complexos
-    const prompt = `Identifique o vinho do EAN ${ean}. Retorne um JSON com: marca, familia, origem, grupo, uva, descricao, harmonizacao (array).`;
+    // Pedimos o JSON no próprio texto do prompt para não depender do parâmetro que deu erro
+    const prompt = `Identifique o vinho EAN ${ean}. Responda APENAS um objeto JSON com os campos: marca, familia, origem, grupo, uva, descricao, harmonizacao. Não use blocos de código markdown.`;
 
-    console.log("🚀 Chamando Gemini...");
-
-    // Usando a v1beta que é mais estável para JSON puro
     const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_KEY}`;
 
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          response_mime_type: "application/json"
-        }
+        contents: [{ parts: [{ text: prompt }] }]
+        // 🚀 Removido o generationConfig que estava causando o erro 400
       })
     });
 
     const data = await response.json();
     console.log("📡 Status Google:", response.status);
 
-    if (response.status !== 200) {
-      console.error("❌ Erro detalhado do Google:", JSON.stringify(data));
-    }
+    const textoResposta = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    console.log("📄 Resposta Google:", textoResposta);
 
-    const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    let parsed = null;
-    if (content) {
+    if (textoResposta) {
+      // Tentamos transformar o texto em JSON
       try {
-        parsed = JSON.parse(content);
+        const vinculo = JSON.parse(textoResposta);
+        return res.json({ ean, ...vinculo });
       } catch (e) {
-        console.error("❌ Falha ao converter texto em JSON");
+        console.error("❌ Erro ao converter JSON:", e.message);
       }
     }
 
-    // Retorno final (Dados da IA ou Fallback)
-    return res.json({
-      ean,
-      marca: parsed?.marca || "Vinho não identificado",
-      familia: parsed?.familia || "Vinho",
-      origem: parsed?.origem || "Desconhecida",
-      grupo: parsed?.grupo || "Não identificado",
-      uva: parsed?.uva || "N/A",
-      descricao: parsed?.descricao || "Não foi possível encontrar detalhes para este EAN.",
-      harmonizacao: parsed?.harmonizacao || []
-    });
+    res.json({ ean, marca: "Vinho não identificado", erro: "Resposta invalida do Google" });
 
   } catch (error) {
     console.error("💥 Erro Geral:", error.message);
@@ -66,7 +49,6 @@ app.post("/enriquecer", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => res.send("API Online 🍷"));
-
+app.get("/", (req, res) => res.send("API ONLINE 🍷"));
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`🔥 Servidor na porta ${PORT}`));
