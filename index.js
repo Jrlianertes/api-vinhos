@@ -15,16 +15,16 @@ app.post("/enriquecer", async (req, res) => {
     }
 
   const prompt = `
-Retorne exatamente este JSON:
+Retorne APENAS este JSON, sem nenhum texto extra:
 
 {
-  "marca": "Teste Vinho",
+  "marca": "Vinho Teste",
   "familia": "Vinho",
   "origem": "Chile",
   "grupo": "Tinto",
   "uva": "Cabernet Sauvignon",
-  "descricao": "Teste funcionando",
-  "harmonizacao": ["Carne", "Queijo"]
+  "descricao": "Vinho encorpado com notas de frutas",
+  "harmonizacao": ["Carnes", "Massas"]
 }
 `;
 
@@ -58,7 +58,7 @@ Retorne exatamente este JSON:
       data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
 
     // 🔍 log bruto
-    console.log("Resposta Gemini BRUTA:", content);
+    console.log("DATA COMPLETA GEMINI:", JSON.stringify(data, null, 2));
 
     // 🔥 pega JSON seguro
     const match = content.match(/\{[\s\S]*?\}/);
