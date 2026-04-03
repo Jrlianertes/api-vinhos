@@ -75,17 +75,22 @@ Retorne APENAS JSON válido:
     }
 
     // 🔥 fallback inteligente
-    if (!parsed.marca) {
-      parsed = {
-        marca: nome || "Vinho",
-        familia: "Vinho",
-        origem: "Não identificado",
-        grupo: "Não identificado",
-        uva: "Não identificado",
-        descricao: "Não foi possível gerar dados confiáveis.",
-        harmonizacao: ["Não disponível"]
-      };
-    }
+    if (
+  !parsed ||
+  !parsed.marca ||
+  parsed.marca === "" ||
+  parsed.marca === null
+) {
+  parsed = {
+    marca: nome || "Vinho",
+    familia: "Vinho",
+    origem: "Não identificado",
+    grupo: "Não identificado",
+    uva: "Não identificado",
+    descricao: "Não foi possível gerar dados confiáveis.",
+    harmonizacao: ["Não disponível"]
+  };
+}
 
     return res.json({
       ean,
