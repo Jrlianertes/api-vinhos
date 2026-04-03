@@ -14,31 +14,25 @@ app.post("/enriquecer", async (req, res) => {
       return res.status(400).json({ erro: "EAN obrigatório" });
     }
 
-    const prompt = `
-Você é um sommelier profissional.
+  const prompt = `
+Você é um especialista em vinhos.
 
-Código EAN: ${ean}
-
-Gere uma ficha técnica REALISTA de vinho.
+Gere uma ficha técnica de vinho.
 
 Retorne SOMENTE JSON válido:
 
 {
-  "marca": "",
-  "familia": "",
-  "origem": "",
-  "grupo": "",
-  "uva": "",
-  "descricao": "",
-  "harmonizacao": ["", ""]
+  "marca": "Nome do vinho",
+  "familia": "Vinho",
+  "origem": "País",
+  "grupo": "Tinto, Branco ou Rosé",
+  "uva": "Tipo de uva",
+  "descricao": "Descrição curta",
+  "harmonizacao": ["Prato 1", "Prato 2"]
 }
 
-Regras:
-- Nunca deixe campos vazios
-- Identifique tipo: vinho, espumante, rosé, frisante
-- Seja coerente com vinhos reais
-- Não invente marcas muito específicas se não tiver certeza
-- Prefira respostas genéricas mas corretas quando necessário
+Nunca retorne JSON vazio.
+Nunca deixe campos vazios.
 `;
 
     // 🔥 timeout
@@ -46,7 +40,7 @@ Regras:
     const timeout = setTimeout(() => controller.abort(), 10000);
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${process.env.GEMINI_KEY}`,
+  `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_KEY}`,
       {
         method: "POST",
         headers: {
