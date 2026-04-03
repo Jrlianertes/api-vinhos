@@ -53,21 +53,37 @@ Retorne APENAS JSON válido:
     let content =
       data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
 
-    content = content.replace(/```json/g, "").replace(/```/g, "").trim();
+    // 🔥 pega só o JSON da resposta
+    const match = content.match(/\{[\s\S]*\}/);
 
+    if (match) {
+      content = match[0];
+    } else {
+      content = "{}";
+    }
+
+    // 🔍 log para debug
+    console.log("Resposta Gemini:", content);
+
+    // ✅ AQUI ESTAVA O ERRO (parsed não existia)
     let parsed;
 
     try {
       parsed = JSON.parse(content);
     } catch {
+      parsed = {};
+    }
+
+    // 🔥 fallback inteligente
+    if (!parsed.marca) {
       parsed = {
         marca: nome || "Vinho",
         familia: "Vinho",
         origem: "Não identificado",
         grupo: "Não identificado",
         uva: "Não identificado",
-        descricao: "Erro ao gerar descrição",
-        harmonizacao: []
+        descricao: "Não foi possível gerar dados confiáveis.",
+        harmonizacao: ["Não disponível"]
       };
     }
 
