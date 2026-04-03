@@ -54,11 +54,15 @@ Retorne EXATAMENTE este JSON, sem nenhum texto antes ou depois:
 
     const data = await response.json();
 
+  // 🔍 log bruto
+    console.log("DATA COMPLETA GEMINI:", JSON.stringify(data, null, 2));
+
+
+
     let content =
       data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
 
-    // 🔍 log bruto
-    console.log("🔥🔥🔥 NOVA VERSÃO RODANDO 🔥🔥🔥");
+ 
 
     // 🔥 pega JSON seguro
     const match = content.match(/\{[\s\S]*?\}/);
