@@ -58,7 +58,7 @@ Retorne APENAS este JSON, sem nenhum texto extra:
       data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
 
     // 🔍 log bruto
-    console.log("DATA COMPLETA GEMINI:", JSON.stringify(data, null, 2));
+    console.log("🔥🔥🔥 NOVA VERSÃO RODANDO 🔥🔥🔥");
 
     // 🔥 pega JSON seguro
     const match = content.match(/\{[\s\S]*?\}/);
