@@ -12,7 +12,7 @@ app.post("/enriquecer", async (req, res) => {
     const prompt = `Identifique o vinho do EAN ${ean}. Retorne um JSON com: marca, familia, origem, grupo, uva, descricao, harmonizacao (array).`;
 
     // URL usando a versão estável v1
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_KEY}`;
 
     const response = await fetch(url, {
       method: "POST",
