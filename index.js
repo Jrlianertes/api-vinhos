@@ -15,81 +15,74 @@ app.post("/enriquecer", async (req, res) => {
     const prompt = `
 Identifique o vinho do EAN ${ean}.
 
-Retorne APENAS um JSON válido, sem explicações, sem markdown.
+Retorne um JSON com exatamente estes campos:
+- marca
+- familia
+- origem
+- grupo
+- uva
+- descricao
+- harmonizacao (array de strings)
 
-Formato:
-{
-  "marca": "",
-  "familia": "",
-  "origem": "",
-  "grupo": "",
-  "uva": "",
-  "descricao": "",
-  "harmonizacao": []
-}
+Se não souber algum campo, retorne null.
 `;
 
-    // ✅ MODELO ESTÁVEL (FUNCIONA NA SUA CONTA)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_KEY}`;
-
-    const response = await fetch(url, {
+    const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: prompt }],
-          },
-        ],
-      }),
+        model: "gpt-4.1-mini",
+        input: prompt,
+        response_format: {
+          type: "json_object"
+        }
+      })
     });
 
     const data = await response.json();
 
-    // 🔴 MOSTRA ERRO REAL (IMPORTANTE)
+    // 🔴 mostra erro real se acontecer
     if (!response.ok) {
-      console.error("❌ Erro Google:", JSON.stringify(data, null, 2));
+      console.error("❌ Erro OpenAI:", JSON.stringify(data, null, 2));
       return res.status(response.status).json({
-        erro: "Erro na API do Google",
-        detalhes: data,
+        erro: "Erro na OpenAI",
+        detalhes: data
       });
     }
 
-    const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const texto = data.output?.[0]?.content?.[0]?.text;
 
     if (!texto) {
       return res.json({
         ean,
         erro: "Resposta vazia da IA",
-        raw: data,
+        raw: data
       });
     }
 
     try {
-      // limpa markdown se vier
-      const jsonLimpo = texto.replace(/```json|```/g, "").trim();
-
-      const parsed = JSON.parse(jsonLimpo);
+      const parsed = JSON.parse(texto);
 
       return res.json({
         ean,
-        ...parsed,
+        ...parsed
       });
 
     } catch (parseError) {
       return res.json({
         ean,
         erro: "Erro ao converter JSON",
-        resposta_bruta: texto,
+        resposta_bruta: texto
       });
     }
 
   } catch (error) {
     console.error("❌ Erro geral:", error);
     return res.status(500).json({
-      erro: error.message,
+      erro: error.message
     });
   }
 });
