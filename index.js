@@ -15,24 +15,17 @@ app.post("/enriquecer", async (req, res) => {
     }
 
   const prompt = `
-Você é um especialista em vinhos.
-
-Gere uma ficha técnica de vinho.
-
-Retorne SOMENTE JSON válido:
+Retorne exatamente este JSON:
 
 {
-  "marca": "Nome do vinho",
+  "marca": "Teste Vinho",
   "familia": "Vinho",
-  "origem": "País",
-  "grupo": "Tinto, Branco ou Rosé",
-  "uva": "Tipo de uva",
-  "descricao": "Descrição curta",
-  "harmonizacao": ["Prato 1", "Prato 2"]
+  "origem": "Chile",
+  "grupo": "Tinto",
+  "uva": "Cabernet Sauvignon",
+  "descricao": "Teste funcionando",
+  "harmonizacao": ["Carne", "Queijo"]
 }
-
-Nunca retorne JSON vazio.
-Nunca deixe campos vazios.
 `;
 
     // 🔥 timeout
