@@ -8,7 +8,7 @@ app.post("/enriquecer", async (req, res) => {
   try {
     const { ean } = req.body;
 
-    console.log("REQ BODY:", req.body);
+    console.log("VERSAO NOVA 🚀🚀🚀");
 
     if (!ean) {
       return res.status(400).json({ erro: "EAN obrigatório" });
