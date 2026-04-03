@@ -19,7 +19,7 @@ marca, familia, origem, grupo, uva, descricao, harmonizacao (array).
 `;
 
     // ✅ URL corrigida (v1 + modelo válido)
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_KEY}`;
 
     const response = await fetch(url, {
       method: "POST",
