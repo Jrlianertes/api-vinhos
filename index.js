@@ -14,12 +14,23 @@ app.post("/enriquecer", async (req, res) => {
 
     const prompt = `
 Identifique o vinho do EAN ${ean}.
-Retorne um JSON puro com:
-marca, familia, origem, grupo, uva, descricao, harmonizacao (array).
+
+Retorne APENAS um JSON válido, sem explicações, sem markdown.
+
+Formato:
+{
+  "marca": "",
+  "familia": "",
+  "origem": "",
+  "grupo": "",
+  "uva": "",
+  "descricao": "",
+  "harmonizacao": []
+}
 `;
 
-    // ✅ URL corrigida (v1 + modelo válido)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${process.env.GEMINI_KEY}`;
+    // ✅ MODELO ESTÁVEL (FUNCIONA NA SUA CONTA)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_KEY}`;
 
     const response = await fetch(url, {
       method: "POST",
@@ -37,9 +48,10 @@ marca, familia, origem, grupo, uva, descricao, harmonizacao (array).
 
     const data = await response.json();
 
+    // 🔴 MOSTRA ERRO REAL (IMPORTANTE)
     if (!response.ok) {
-      console.error("❌ Erro Google:", data);
-      return res.status(500).json({
+      console.error("❌ Erro Google:", JSON.stringify(data, null, 2));
+      return res.status(response.status).json({
         erro: "Erro na API do Google",
         detalhes: data,
       });
@@ -47,29 +59,47 @@ marca, familia, origem, grupo, uva, descricao, harmonizacao (array).
 
     const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (texto) {
-      try {
-        const jsonLimpo = texto.replace(/```json|```/g, "").trim();
-        const parsed = JSON.parse(jsonLimpo);
-        return res.json({ ean, ...parsed });
-      } catch (e) {
-        return res.json({
-          ean,
-          erro: "Erro ao interpretar JSON",
-          bruto: texto,
-        });
-      }
+    if (!texto) {
+      return res.json({
+        ean,
+        erro: "Resposta vazia da IA",
+        raw: data,
+      });
     }
 
-    return res.json({ ean, marca: "Vinho não identificado" });
+    try {
+      // limpa markdown se vier
+      const jsonLimpo = texto.replace(/```json|```/g, "").trim();
+
+      const parsed = JSON.parse(jsonLimpo);
+
+      return res.json({
+        ean,
+        ...parsed,
+      });
+
+    } catch (parseError) {
+      return res.json({
+        ean,
+        erro: "Erro ao converter JSON",
+        resposta_bruta: texto,
+      });
+    }
 
   } catch (error) {
     console.error("❌ Erro geral:", error);
-    res.status(500).json({ erro: error.message });
+    return res.status(500).json({
+      erro: error.message,
+    });
   }
 });
 
-app.get("/", (req, res) => res.send("API Online"));
+app.get("/", (req, res) => {
+  res.send("API Online 🚀");
+});
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
