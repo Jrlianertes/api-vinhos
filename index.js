@@ -22,6 +22,9 @@ Retorne um JSON com exatamente estes campos:
 - grupo
 - uva
 - descricao
+- pontuacao
+- teor alcoolico
+- temperatura de serviço
 - harmonizacao (array de strings)
 
 Se não souber algum campo, retorne null.
