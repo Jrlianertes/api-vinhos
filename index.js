@@ -36,15 +36,16 @@ Se não souber algum campo, retorne null.
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         input: prompt,
-        response_format: {
-          type: "json_object"
+        text: {
+          format: {
+            type: "json_object"
+          }
         }
       })
     });
 
     const data = await response.json();
 
-    // 🔴 mostra erro real se acontecer
     if (!response.ok) {
       console.error("❌ Erro OpenAI:", JSON.stringify(data, null, 2));
       return res.status(response.status).json({
